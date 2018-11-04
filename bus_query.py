@@ -4,11 +4,15 @@ from os import system
 from time import sleep
 from ast import literal_eval
 
-def getLineDir(url,s):
+def getLineDir(bus,s):
+    # 构建请求链接
+    selbline = requests.utils.quote(bus)
+    url = 'http://www.bjbus.com/home/ajax_rtbus_data.php?act=getLineDir&selBLine={}'.format(selbline)
     r = s.get(url,verify=False)
-    r.encoding = r.apparent_encoding
+    r.encoding = r.apparent_encoding #处理编码
     rt = r.text
     LineDir_info = dict()
+    # 匹配信息
     uuid_list = re.findall('(?<=data-uuid=")\d+',rt)
     busdir_list = re.findall('\((.*?)\)',rt)
     for i in [1,2]:
@@ -18,8 +22,8 @@ def getLineDir(url,s):
         LineDir_info["{}".format(i)]=flist
     return LineDir_info
 
-def getbus(busid,s):
-    url = 'http://www.bjbus.com/home/ajax_rtbus_data.php?act=busTime&selBLine=1&selBDir={}&selBStop=1'.format(busid)
+def getbus(uuid,s):
+    url = 'http://www.bjbus.com/home/ajax_rtbus_data.php?act=busTime&selBLine=1&selBDir={}&selBStop=1'.format(uuid)
     r = s.get(url,verify=False)
     html = literal_eval(r.text)['html']
     busc = re.findall('(?<=id=")\d+(?=m"><i  class="busc")',html)
@@ -43,15 +47,15 @@ def rec_str(mystr):
     return re.sub('t','特',mystr,flags=re.I)
 
 def main():
+    # 创建session，自动处理cookies，添加头信息
     s = requests.Session()
     UA='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36'
     header = {'User-Agent':UA}
     s.headers.update(header)
 
+    # 输入车次信息，获取班车的特征码uuid以及始末站
     bus = rec_str(input("输入查询车次："))
-    selbline = requests.utils.quote(bus)
-    url_getLineDir = 'http://www.bjbus.com/home/ajax_rtbus_data.php?act=getLineDir&selBLine={}'.format(selbline)
-    line_info = getLineDir(url_getLineDir,s) #获取班车的特征码以及始末站
+    line_info = getLineDir(bus,s)
 
     fint = input("选择方向：\n[1]{}\n[2]{}\n选择(Enter确认):".format(line_info["1"][1],line_info["2"][1]))
     res = system('cls')
