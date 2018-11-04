@@ -2,6 +2,9 @@
 北京实时公交查询爬虫(spider for Beijing real-time bus infomation)  
 官网查询实时公交操作繁琐，在手机上更是不好用，直接写成爬虫脚本，便于桌面使用。结合Android上的Termux，以及简单的sh脚本，就能方便在手机上看公交信息了。一般用的也就固定的几趟车，可以自行修改参数，定制查询。
 
+# 功能演示
+![示例](./demo_t19.gif)
+
 # 函数说明
 > getLineDir(url,s)
 
